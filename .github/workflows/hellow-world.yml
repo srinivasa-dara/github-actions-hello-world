@@ -1,1 +1,59 @@
+name: Hello World Build
 
+on:
+  workflow_dispatch:
+    inputs:
+
+      app_name:
+        description: "Application name"
+        required: true
+        default: "hello-world"
+
+      environment:
+        description: "Deployment environment"
+        required: true
+        type: choice
+        options:
+          - dev
+          - qa
+          - prod
+        default: dev
+
+      build_number:
+        description: "Build number"
+        required: true
+        default: "1"
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Display parameters
+        run: |
+          echo "Application: ${{ inputs.app_name }}"
+          echo "Environment: ${{ inputs.environment }}"
+          echo "Build Number: ${{ inputs.build_number }}"
+
+      - name: Run Hello World build
+        run: |
+          chmod +x scripts/build.sh
+
+          ./scripts/build.sh \
+            "${{ inputs.app_name }}" \
+            "${{ inputs.environment }}"
+
+      - name: Create build information
+        run: |
+          echo "Build Number=${{ inputs.build_number }}" >> build/application.txt
+
+      - name: Display build output
+        run: |
+          echo "===== Build Output ====="
+          cat build/application.txt
